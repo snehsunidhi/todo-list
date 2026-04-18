@@ -28,6 +28,18 @@
             width: 100%;
             max-width: 500px;
             padding: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -35,6 +47,16 @@
             margin-bottom: 30px;
             text-align: center;
             font-size: 28px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .input-section {
@@ -49,12 +71,14 @@
             border: 2px solid #e0e0e0;
             border-radius: 5px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
 
         #todoInput:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+            transform: scale(1.02);
         }
 
         #addBtn {
@@ -66,11 +90,43 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         #addBtn:hover {
             background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #addBtn:active {
+            transform: translateY(0);
+        }
+
+        #addBtn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+        }
+
+        #addBtn:active::before {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
         }
 
         #todoList {
@@ -84,20 +140,55 @@
             background: #f9f9f9;
             border-radius: 5px;
             margin-bottom: 10px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.4s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .todo-item:hover {
             background: #f0f0f0;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .todo-item.completed {
             opacity: 0.6;
+            animation: fadeComplete 0.4s ease-out;
+        }
+
+        @keyframes fadeComplete {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0.6;
+            }
         }
 
         .todo-item.completed span {
             text-decoration: line-through;
             color: #888;
+        }
+
+        .todo-item.deleting {
+            animation: slideOutRight 0.4s ease-out forwards;
+        }
+
+        @keyframes slideOutRight {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
         }
 
         .todo-item input[type="checkbox"] {
@@ -106,12 +197,34 @@
             cursor: pointer;
             margin-right: 15px;
             accent-color: #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .todo-item input[type="checkbox"]:hover {
+            transform: scale(1.2);
+        }
+
+        .todo-item input[type="checkbox"]:checked {
+            animation: checkmark 0.4s ease-out;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0.8) rotate(-45deg);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
         }
 
         .todo-item span {
             flex: 1;
             color: #333;
             font-size: 16px;
+            transition: all 0.3s ease;
         }
 
         .delete-btn {
@@ -122,11 +235,17 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
         }
 
         .delete-btn:hover {
             background: #ff5252;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
         }
 
         .empty-message {
@@ -134,6 +253,7 @@
             color: #999;
             padding: 40px 20px;
             font-size: 16px;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .stats {
@@ -149,12 +269,30 @@
 
         .stat {
             flex: 1;
+            animation: fadeIn 0.7s ease-out;
         }
 
         .stat-number {
             font-size: 20px;
             font-weight: 600;
             color: #667eea;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .stat-number-update {
+            animation: countUp 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            0% {
+                transform: scale(1.3) translateY(-10px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -268,10 +406,18 @@
 
         // Delete a todo
         function deleteTodo(index) {
-            const todos = loadTodos();
-            todos.splice(index, 1);
-            saveTodos(todos);
-            renderTodos();
+            const items = todoList.querySelectorAll('.todo-item');
+            const itemToDelete = items[index];
+            
+            if (itemToDelete) {
+                itemToDelete.classList.add('deleting');
+                setTimeout(() => {
+                    const todos = loadTodos();
+                    todos.splice(index, 1);
+                    saveTodos(todos);
+                    renderTodos();
+                }, 400);
+            }
         }
 
         // Update statistics
@@ -280,9 +426,23 @@
             const completed = todos.filter(todo => todo.completed).length;
             const remaining = total - completed;
 
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('completedCount').textContent = completed;
-            document.getElementById('remainingCount').textContent = remaining;
+            const totalCountEl = document.getElementById('totalCount');
+            const completedCountEl = document.getElementById('completedCount');
+            const remainingCountEl = document.getElementById('remainingCount');
+
+            // Update with animation
+            updateStatValue(totalCountEl, total);
+            updateStatValue(completedCountEl, completed);
+            updateStatValue(remainingCountEl, remaining);
+        }
+
+        function updateStatValue(element, newValue) {
+            if (element.textContent !== String(newValue)) {
+                element.classList.remove('stat-number-update');
+                void element.offsetWidth; // Trigger reflow to restart animation
+                element.classList.add('stat-number-update');
+                element.textContent = newValue;
+            }
         }
 
         // Event listeners
