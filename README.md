@@ -11,6 +11,7 @@ A simple, elegant, and fully functional todo list application built with HTML, C
 - 💾 **Local Storage** - Your tasks are automatically saved to your browser's local storage
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
 - 🎨 **Modern UI** - Beautiful gradient design with smooth animations
+- 🧭 **Navigation Bar** - Clean navbar with app branding and navigation links
 
 ## Getting Started
 
